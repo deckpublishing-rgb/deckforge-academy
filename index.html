@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deckforge Admin</title>
+<style>
+:root{--bg:#fafaf9;--card:#fff;--surface:#fff7ed;--text:#1c1917;--muted:#57534e;--accent:#ea580c;--accent-t:#fff;--line:#e7e5e4;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0a09;--card:#1c1917;--surface:#292524;--text:#fafaf9;--muted:#d6d3d1;--accent:#fb923c;--accent-t:#1c1917;--line:#44403c;--ok:#4ade80;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#0c0a09;--card:#1c1917;--surface:#292524;--text:#fafaf9;--muted:#d6d3d1;--accent:#fb923c;--accent-t:#1c1917;--line:#44403c;--ok:#4ade80;--bad:#f87171}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--card);border-right:1px solid var(--line);padding:18px 14px}
+.logo{font-weight:800;font-size:19px;color:var(--accent);margin:0 6px 4px}.logo span{color:var(--text)}
+.tag{font-size:12px;color:var(--muted);margin:0 6px 18px;text-transform:uppercase;letter-spacing:.06em}
+nav a{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;margin-bottom:4px}
+nav a.on{background:var(--accent);color:var(--accent-t)}
+.tog{margin-top:14px;width:100%}
+main{padding:22px;max-width:980px;width:100%}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:18px;margin:26px 0 10px}
+.sub{color:var(--muted);margin:0 0 18px}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat,.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat b{font-size:28px;display:block;color:var(--accent)}.stat span{color:var(--muted);font-size:14px}
+.box{margin-bottom:14px}
+input,select{width:100%;padding:11px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+.btn{background:var(--accent);color:var(--accent-t);border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer}
+.btn.alt{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.btn.bad{background:transparent;color:var(--bad);border:2px solid var(--bad)}
+.btn.sm{padding:7px 11px;font-size:14px}
+.row{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+@media (min-width:760px){.row{grid-template-columns:1fr 1.3fr auto;align-items:center}}
+.hint{font-size:13px;margin-top:4px}.ok{color:var(--ok)}.no{color:var(--muted)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:14px}
+.chip.on{background:var(--accent);color:var(--accent-t);border-color:var(--accent)}
+.user{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between;padding:14px 0;border-top:1px solid var(--line)}
+.user:first-child{border-top:0}
+.who b{display:block}.who span{color:var(--muted);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;border:1px solid var(--line);text-transform:capitalize}
+.badge.approved{color:var(--ok);border-color:var(--ok)}.badge.pending{color:var(--accent);border-color:var(--accent)}.badge.removed{color:var(--bad);border-color:var(--bad)}
+.empty{color:var(--muted);padding:16px 0;text-align:center}
+.saved{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);border-radius:99px;padding:8px 14px;font-size:14px;opacity:0;transition:opacity .2s}.saved.on{opacity:1}
+@media (max-width:759px){.shell{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:12px}nav{display:flex;gap:6px;overflow-x:auto}nav a{white-space:nowrap;margin:0}.tag{display:none}.logo{margin-bottom:10px}main{padding:16px}.tog{width:auto;margin-top:10px}}
+#gate{padding:16px}.gbox{max-width:380px;margin:10vh auto 0;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:16px}.err{color:var(--bad);font-size:14px;min-height:20px;margin:10px 0}
+</style>
+</head>
+<body>
+<div id="gate" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="../config.js"></script>
+<div class="shell" style="display:none">
+<aside><div class="logo">Deck<span>forge</span></div><div class="tag">Admin</div>
+<nav id="nav"></nav><button class="btn alt sm tog" id="tg"></button> <button class="btn alt sm tog" data-a="out">Log out</button></aside>
+<main id="app"></main>
+</div>
+<div class="saved" id="sv">Saved</div>
+<script>
+var S={modules:[],users:[]},sb=supabase.createClient(DECKFORGE_CONFIG.SUPABASE_URL,DECKFORGE_CONFIG.SUPABASE_ANON_KEY),ok=false,AM="";
+function $(i){return document.getElementById(i)}
+var F="pending",Q="",T=0;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function yid(u){var m=String(u).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);return m?m[1]:null}
+function uid(){return"x"+Math.random().toString(36).slice(2,8)}
+function save(){var v=document.getElementById("sv");v.classList.add("on");clearTimeout(T);T=setTimeout(function(){v.classList.remove("on")},1200)}
+function setTheme(t){document.documentElement.setAttribute("data-theme",t);try{localStorage.setItem("t",t)}catch(e){}}
+try{var st=localStorage.getItem("t");if(st)setTheme(st)}catch(e){}
+function dark(){var t=document.documentElement.getAttribute("data-theme");return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches}
+function view(){var h=(location.hash||"#dashboard").slice(1);return["dashboard","content","users"].indexOf(h)<0?"dashboard":h}
+function cnt(s){return S.users.filter(function(u){return u.status===s}).length}
+function dash(){var L=0,V=0;S.modules.forEach(function(m){m.lessons.forEach(function(l){L++;if(yid(l.yt))V++})});var p=S.users.filter(function(u){return u.status==="pending"});return'<h1>Dashboard</h1><p class="sub">An overview of your academy.</p><div class="stats"><div class="stat"><b>'+S.modules.length+'</b><span>Modules</span></div><div class="stat"><b>'+L+'</b><span>Lessons</span></div><div class="stat"><b>'+V+' / '+L+'</b><span>Lessons with video</span></div><div class="stat"><b>'+cnt("approved")+'</b><span>Approved students</span></div><div class="stat"><b>'+p.length+'</b><span>Waiting for approval</span></div></div><h2>Waiting for approval</h2><div class="box">'+(p.length?p.map(urow).join(""):'<div class="empty">No one is waiting.</div>')+'</div><h2>Quick actions</h2><div class="acts"><a class="btn" href="#content" style="text-decoration:none">Edit course content</a><a class="btn alt" href="#users" style="text-decoration:none">Manage students</a></div>'}
+function content(){var h='<h1>Course content</h1><p class="sub">Add, rename or remove modules and lessons. Paste a YouTube link for each lesson video. Changes save automatically.</p><p><button class="btn" data-a="addm">+ Add module</button></p>';S.modules.forEach(function(m,i){h+='<div class="box"><label>Module '+(i+1)+'</label><input data-k="m" data-id="'+m.id+'" value="'+esc(m.title)+'">';m.lessons.forEach(function(l){var v=yid(l.yt);h+='<div class="row"><div><input data-k="lt" data-id="'+l.id+'" value="'+esc(l.title)+'" placeholder="Lesson title"></div><div><input data-k="ly" data-id="'+l.id+'" value="'+esc(l.yt)+'" placeholder="Paste YouTube link"><div class="hint" id="h-'+l.id+'">'+hint(l.yt)+'</div></div><button class="btn bad sm" data-a="dell" data-id="'+l.id+'">Remove</button></div>'});h+='<div class="acts" style="margin-top:12px"><button class="btn sm" data-a="addl" data-id="'+m.id+'">+ Add lesson</button><button class="btn bad sm" data-a="delm" data-id="'+m.id+'">Delete module</button></div></div>'});return h}
+function hint(v){return!v?'<span class="no">No video yet</span>':yid(v)?'<span class="ok">✓ Valid YouTube link</span>':'<span style="color:var(--bad)">This doesn’t look like a YouTube link</span>'}
+function urow(u){return'<div class="user"><div class="who"><b>'+esc(u.name)+'</b><span>'+esc(u.email)+'</span></div><span class="badge '+u.status+'">'+u.status+'</span><div class="acts">'+(u.status!=="approved"?'<button class="btn sm" data-a="appr" data-id="'+u.id+'">Approve</button>':'<button class="btn alt sm" data-a="rev" data-id="'+u.id+'">Remove access</button>')+'</div></div>'}
+function ulist(){var l=S.users.filter(function(u){return(F==="all"||u.status===F)&&(u.name+u.email).toLowerCase().indexOf(Q)>=0});return l.length?l.map(urow).join(""):'<div class="empty">No students here.</div>'}
+function users(){return'<h1>Students</h1><p class="sub">Approve new students, remove access, or delete a login for good.</p><div class="bar">'+["pending","approved","removed","all"].map(function(f){return'<button class="chip'+(F===f?" on":"")+'" data-a="f" data-id="'+f+'">'+f[0].toUpperCase()+f.slice(1)+(f==="all"?"":" ("+cnt(f)+")")+'</button>'}).join("")+'</div><input id="q" placeholder="Search by name or email" value="'+esc(Q)+'" style="margin-bottom:14px"><div class="box" id="ul">'+ulist()+'</div>'}
+function render(){if(!ok){showGate();return}document.getElementById("gate").hidden=true;document.querySelector(".shell").style.display="";var v=view();document.getElementById("nav").innerHTML=[["dashboard","📊","Dashboard"],["content","🎬","Course content"],["users","👥","Students"]].map(function(n){return'<a href="#'+n[0]+'"'+(v===n[0]?' class="on"':"")+'>'+n[1]+' '+n[2]+'</a>'}).join("");document.getElementById("tg").textContent=dark()?"☀️ Light mode":"🌙 Dark mode";document.getElementById("app").innerHTML={dashboard:dash,content:content,users:users}[v]()}
+async function loadData(){var m=await sb.from("modules").select("id,title,position").order("position"),l=await sb.from("lessons").select("id,module_id,title,youtube_url,position").order("position"),p=await sb.from("profiles").select("id,email,full_name,status,is_admin,created_at").order("created_at",{ascending:false});S.modules=(m.data||[]).map(function(x){return{id:x.id,title:x.title,lessons:(l.data||[]).filter(function(y){return y.module_id===x.id}).map(function(y){return{id:y.id,title:y.title,yt:y.youtube_url}})}});S.users=(p.data||[]).filter(function(u){return!u.is_admin}).map(function(u){return{id:u.id,name:u.full_name||"(no name)",email:u.email,status:u.status}})}
+async function start(){var s=(await sb.auth.getSession()).data.session;ok=false;if(s){var r=await sb.from("profiles").select("is_admin").eq("id",s.user.id).maybeSingle();if(r.data&&r.data.is_admin){await loadData();ok=true}else{await sb.auth.signOut();AM="This account isn’t an admin."}}render()}
+function showGate(){var g=$("gate");document.querySelector(".shell").style.display="none";g.hidden=false;g.innerHTML='<div class="gbox"><div class="logo" style="text-align:center;font-size:24px">Deck<span>forge</span> Admin</div><h2 style="text-align:center">Admin login</h2><label>Email</label><input id="ge" type="email" autocomplete="email"><label style="margin-top:12px">Password</label><input id="gp" type="password" autocomplete="current-password"><p class="err" id="gm">'+esc(AM)+'</p><button class="btn" style="width:100%" data-a="gate">Log in</button></div>'}
+async function gate(){var e=$("ge").value.trim(),p=$("gp").value,m=$("gm");if(!e||!p){m.textContent="Enter your email and password.";return}m.textContent="Please wait…";var r=await sb.auth.signInWithPassword({email:e,password:p});if(r.error){m.textContent=r.error.message;return}AM="";await start()}
+function fail(x){alert("Couldn’t save: "+x.message)}
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&!ok&&/^g[ep]$/.test(e.target.id))gate()});
+function fm(id){return S.modules.filter(function(m){return m.id===id})[0]}
+function fl(id){var r=null;S.modules.forEach(function(m){m.lessons.forEach(function(l){if(l.id===id)r=l})});return r}
+function fu(id){return S.users.filter(function(u){return u.id===id})[0]}
+document.addEventListener("click",async function(e){var b=e.target.closest("[data-a],#tg");if(!b)return;if(b.id==="tg"){setTheme(dark()?"light":"dark");render();return}var a=b.dataset.a,id=b.dataset.id,r,m;if(a==="gate"){gate();return}if(a==="out"){await sb.auth.signOut();ok=false;S={modules:[],users:[]};render();return}if(a==="f"){F=id;render();return}
+if(a==="addm"){r=await sb.from("modules").insert({title:"New module",position:S.modules.length}).select().single();if(r.error)return fail(r.error);S.modules.push({id:r.data.id,title:r.data.title,lessons:[]})}
+else if(a==="addl"){m=fm(id);r=await sb.from("lessons").insert({module_id:id,title:"New lesson",position:m.lessons.length}).select().single();if(r.error)return fail(r.error);m.lessons.push({id:r.data.id,title:r.data.title,yt:""})}
+else if(a==="delm"){if(!confirm("Delete this module and all its lessons?"))return;r=await sb.from("modules").delete().eq("id",id);if(r.error)return fail(r.error);S.modules=S.modules.filter(function(x){return x.id!==id})}
+else if(a==="dell"){if(!confirm("Remove this lesson?"))return;r=await sb.from("lessons").delete().eq("id",id);if(r.error)return fail(r.error);S.modules.forEach(function(x){x.lessons=x.lessons.filter(function(l){return l.id!==id})})}
+else if(a==="appr"||a==="rev"){if(a==="rev"&&!confirm("Remove this student’s access?"))return;var ns=a==="appr"?"approved":"removed";r=await sb.from("profiles").update({status:ns}).eq("id",id);if(r.error)return fail(r.error);fu(id).status=ns}
+save();render()});
+var tm={};
+document.addEventListener("input",function(e){var t=e.target,k=t.dataset.k;if(t.id==="q"){Q=t.value.toLowerCase();$("ul").innerHTML=ulist();return}if(!k)return;var id=t.dataset.id,tb,col,val=t.value;if(k==="m"){fm(id).title=val;tb="modules";col="title"}else if(k==="lt"){fl(id).title=val;tb="lessons";col="title"}else{fl(id).yt=val;tb="lessons";col="youtube_url";$("h-"+id).innerHTML=hint(val)}clearTimeout(tm[id+k]);tm[id+k]=setTimeout(function(){var o={};o[col]=val;sb.from(tb).update(o).eq("id",id).then(function(r){if(r.error)fail(r.error);else save()})},600)});
+window.addEventListener("hashchange",function(){render();scrollTo(0,0)});
+start();
+</script>
+</body>
+</html>
