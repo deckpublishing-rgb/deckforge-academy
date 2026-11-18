@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Deckforge Admin</title>
+<title>DeckForge Admin</title>
 <style>
 :root{--bg:#fafaf9;--card:#fff;--surface:#fff7ed;--text:#1c1917;--muted:#57534e;--accent:#ea580c;--accent-t:#fff;--line:#e7e5e4;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0a09;--card:#1c1917;--surface:#292524;--text:#fafaf9;--muted:#d6d3d1;--accent:#fb923c;--accent-t:#1c1917;--line:#44403c;--ok:#4ade80;--bad:#f87171}}
@@ -52,9 +52,9 @@ label{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
 <body>
 <div id="gate" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="../config.js"></script>
+<script src="config.js"></script>
 <div class="shell" style="display:none">
-<aside><div class="logo">Deck<span>forge</span></div><div class="tag">Admin</div>
+<aside><div class="logo">Deck<span>Forge</span></div><div class="tag">Admin</div>
 <nav id="nav"></nav><button class="btn alt sm tog" id="tg"></button> <button class="btn alt sm tog" data-a="out">Log out</button></aside>
 <main id="app"></main>
 </div>
@@ -81,7 +81,7 @@ function users(){return'<h1>Students</h1><p class="sub">Approve new students, re
 function render(){if(!ok){showGate();return}document.getElementById("gate").hidden=true;document.querySelector(".shell").style.display="";var v=view();document.getElementById("nav").innerHTML=[["dashboard","📊","Dashboard"],["content","🎬","Course content"],["users","👥","Students"]].map(function(n){return'<a href="#'+n[0]+'"'+(v===n[0]?' class="on"':"")+'>'+n[1]+' '+n[2]+'</a>'}).join("");document.getElementById("tg").textContent=dark()?"☀️ Light mode":"🌙 Dark mode";document.getElementById("app").innerHTML={dashboard:dash,content:content,users:users}[v]()}
 async function loadData(){var m=await sb.from("modules").select("id,title,position").order("position"),l=await sb.from("lessons").select("id,module_id,title,youtube_url,position").order("position"),p=await sb.from("profiles").select("id,email,full_name,status,is_admin,created_at").order("created_at",{ascending:false});S.modules=(m.data||[]).map(function(x){return{id:x.id,title:x.title,lessons:(l.data||[]).filter(function(y){return y.module_id===x.id}).map(function(y){return{id:y.id,title:y.title,yt:y.youtube_url}})}});S.users=(p.data||[]).filter(function(u){return!u.is_admin}).map(function(u){return{id:u.id,name:u.full_name||"(no name)",email:u.email,status:u.status}})}
 async function start(){var s=(await sb.auth.getSession()).data.session;ok=false;if(s){var r=await sb.from("profiles").select("is_admin").eq("id",s.user.id).maybeSingle();if(r.data&&r.data.is_admin){await loadData();ok=true}else{await sb.auth.signOut();AM="This account isn’t an admin."}}render()}
-function showGate(){var g=$("gate");document.querySelector(".shell").style.display="none";g.hidden=false;g.innerHTML='<div class="gbox"><div class="logo" style="text-align:center;font-size:24px">Deck<span>forge</span> Admin</div><h2 style="text-align:center">Admin login</h2><label>Email</label><input id="ge" type="email" autocomplete="email"><label style="margin-top:12px">Password</label><input id="gp" type="password" autocomplete="current-password"><p class="err" id="gm">'+esc(AM)+'</p><button class="btn" style="width:100%" data-a="gate">Log in</button></div>'}
+function showGate(){var g=$("gate");document.querySelector(".shell").style.display="none";g.hidden=false;g.innerHTML='<div class="gbox"><div class="logo" style="text-align:center;font-size:24px">Deck<span>Forge</span> Admin</div><h2 style="text-align:center">Admin login</h2><label>Email</label><input id="ge" type="email" autocomplete="email"><label style="margin-top:12px">Password</label><input id="gp" type="password" autocomplete="current-password"><p class="err" id="gm">'+esc(AM)+'</p><button class="btn" style="width:100%" data-a="gate">Log in</button></div>'}
 async function gate(){var e=$("ge").value.trim(),p=$("gp").value,m=$("gm");if(!e||!p){m.textContent="Enter your email and password.";return}m.textContent="Please wait…";var r=await sb.auth.signInWithPassword({email:e,password:p});if(r.error){m.textContent=r.error.message;return}AM="";await start()}
 function fail(x){alert("Couldn’t save: "+x.message)}
 document.addEventListener("keydown",function(e){if(e.key==="Enter"&&!ok&&/^g[ep]$/.test(e.target.id))gate()});
